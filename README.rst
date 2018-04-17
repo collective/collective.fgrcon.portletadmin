@@ -29,8 +29,8 @@ Examples /Documentation
  - See all portlet assignments of the whole site 
    e.g.: http://Server/Plone/@@portlet-admin
    
-   .. image:: ./docs/screen-all-overview Kopie.jpg
-   .. image:: ./docs/screen-all-detail Kopie.jpg
+   .. image:: ./docs/screen-all-overview.jpg
+   .. image:: ./docs/screen-all-detail.jpg
    
  - See all portlet assignments in Folder 1 an below only
      
