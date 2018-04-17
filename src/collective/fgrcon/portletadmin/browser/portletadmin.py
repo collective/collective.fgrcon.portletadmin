@@ -38,16 +38,16 @@ def _recurse_content(context, all_content):
                 all_content.append(item)
                 _recurse_content(item, all_content)
 
-def move_form(scont,sman, sid):
+def move_form(scont,sman, sid,vhmprefix):
     #import ipdb; ipdb.set_trace();
-    sconturl =scont.absolute_url_path()
+    sconturl =  scont.absolute_url_path()
     tooltip1 = '<a href="#" data-toggle="tooltip" class="pat-tooltip" '\
             'title="Target URL (relative).\n Leave as is when moving to other '\
             'portletmanager within same container/item">'\
             '<img width="20" src="++resource++collective.fgrcon.portletadmin/info.png">'\
             '</a>'
     #onchange = 'alert(`getting ....`)'
-    onchange = 'javascript:get_portletmanagers(`{}`, `{}`)'.format(sconturl.replace('/',''), sid) 
+    onchange = 'javascript:get_portletmanagers(`{}`, `{}`, `{}`)'.format(sconturl.replace('/',''), sid,vhmprefix) 
     out = '<div style="width:100%;" ><form method="post" action = {}'\
           '/@@move-portlet>'.format(api.portal.get().absolute_url())
     out +='<label class="fgrportletadm" style="width:45%" for="target-document">'\
@@ -69,6 +69,7 @@ def move_form(scont,sman, sid):
     out += '<input type="hidden" name="scont" value="{}">'.format(sconturl)
     out += '<input type="hidden" name="sman" value="{}">'.format(sman)
     out += '<input type="hidden" name="sid" value="{}">'.format(sid)
+    out += '<input type="hidden" name="vhmprefix" value="{}">'.format(vhmprefix)
     out += '</form></div>'
         
     return out
@@ -81,22 +82,14 @@ class PortletAdmin(BrowserView):
     2) Visit site.com/[.../]@@portlets-admin URL
 
     """
-#     grok.name("portlet-admin")
-#     grok.context(ISiteRoot)
-#     grok.require("cmf.ManagePortal")
-# 
-#     grok.template("portlet-admin")
-
-    #index = ViewPageTemplateFile('templates/portlet-admin.pt')
-    
-    
 
     def xrender(self):
         out = ''
-#       fe = open("checkportlets_err.txt", "w")
         portal = api.portal.get()
         context = self.context
-
+        vhmprefix=''
+        if not portal.getPhysicalPath()[1] in portal.absolute_url_path():
+            vhmprefix = "/"+portal.getPhysicalPath()[1]  
         catalog = portal.portal_catalog
         if context == portal:
             all_content = catalog(show_inactive=True, 
@@ -107,8 +100,8 @@ class PortletAdmin(BrowserView):
             all_content = []
             all_content.append(context)
             _recurse_content(context,all_content)
-        # browse all content recursively
 
+        # browse all content recursively
         ci=0
         currcont =''
         for cont in all_content:
@@ -120,7 +113,6 @@ class PortletAdmin(BrowserView):
                         cont.portal_type)
                 currcont = cont
                 ccount = 0
-            #print str(i) + '    ' + cont.Title() + '  ------------------ '
             mi = 0
             curman = ""
             for manager_name, manager in getUtilitiesFor(IPortletManager, context=cont):
@@ -128,7 +120,6 @@ class PortletAdmin(BrowserView):
                     mheader = '<h3 class="fgrportletadm-managr">{}</h3>'.format(manager_name)
                     curman = manager_name
                     mcount = 0                
-                #print "##     %s" % str(manager_name)
                 try:
                     mapping = getMultiAdapter((cont, manager), IPortletAssignmentMapping)                    
                     for mapitem in mapping.items():
@@ -142,18 +133,16 @@ class PortletAdmin(BrowserView):
                             .format(conturl)
                         if mcount == 1:
                             out += mheader
-                        #import ipdb; ipdb.set_trace()
                         out += '<div class="fgrportletadm"><h3>{} ({})</h3>'\
                         .format(portlet_id,unicode(getattr(ass,'header', '')))
                         param1 ="pcurl={}&pman={}&id={}"\
-                        .format(quote(cont.absolute_url_path()),
+                        .format(vhmprefix+conturl,
                                 manager_name,portlet_id) #,str(ass))
                         # edit link
-                        
-                        out += '<p><a class="fgrportletadm-edit" href="{}/++contextportlets++{}/{}/edit">Edit</a>'.format(conturl, manager_name, portlet_id)
+                        out += '<p><a class="fgrportletadm-edit" href="{}/++contextportlets++{}/{}/edit">Edit</a>'.format(vhmprefix+conturl, manager_name, portlet_id)
                         # Remove portlet link
                         out += ' | Be careful, Remove cannot be undone: <a class="fgrportletadm-delete" href="{}/@@delete-portlet?{}">Remove </a></p>'.format(api.portal.get().absolute_url(), param1)
-                        out += move_form(cont, curman, portlet_id )
+                        out += move_form(cont, curman, portlet_id, vhmprefix )
                         out += '</div>'
                 except ComponentLookupError as e:
                     #import ipdb; ipdb.set_trace()
@@ -162,20 +151,5 @@ class PortletAdmin(BrowserView):
                         raise
                     else:
                         pass
-#                         msg = "\n\n--------\n {} {}: {} \t {} \n    error: {}     {!r} "
-#                         msg = msg.format(ci,portlet_id, conturl, manager_name, type(e).__name__, e.args)
-# #                         fe.write(msg)
-#                         print msg
-#         fe.close()
         return out
-            
-                    #"print'**error** %s: %s ' % (str(e),str(cont.absolute_url_path()))
-
-            #plone = getMultiAdapter((self.context, self.request), name="plone_portal_state")
-
-    #         portal = self.context
-    #         self.disable_integrity_check()
-    #         recurse(portal, f)
-    #         self.enable_integrity_check()
-    
-    
+ 

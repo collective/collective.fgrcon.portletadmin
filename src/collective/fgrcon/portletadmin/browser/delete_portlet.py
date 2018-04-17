@@ -37,6 +37,8 @@ class DeletePortlet(BrowserView):
 
     def __call__(self):
         pcurl = self.request.get('pcurl') #url of portletcontainer
+        #vhmprefix = self.request.get('vhmprefix')
+        #print '\n deletePortlet | pcurl: ' +pcurl + 'vhmprefix:' +vhmprefix+'\n'
         pman= self.request.get('pman') #manager_name
         id = self.request.get('id')  #portlet id 
         portal = api.portal.get()

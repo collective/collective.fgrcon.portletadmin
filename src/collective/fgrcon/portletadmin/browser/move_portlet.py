@@ -26,21 +26,26 @@ from zope.component.hooks import setHooks, setSite, getSite
 from urllib import quote
 import transaction
 
+class NoValidContainerException(Exception):
+    pass
 
 class MovePortlet(BrowserView):
     """
     """
     
     def __call__(self):
-        #import ipdb; ipdb.set_trace(); #
-        tcont = self.request.form['target-document'] #targetcontainer
+        vhmprefix = self.request.form['vhmprefix']
+        tcont = vhmprefix + self.request.form['target-document'] #targetcontainer
         tman = self.request.form['sel-managers'] # target manager
-        scont = self.request.form['scont'] #source container
+        scont = vhmprefix + self.request.form['scont'] #source container
         sman= self.request.form['sman'] #  source manager
         sid= self.request.form['sid'] #  source portlet id       
         portal = api.portal.get()
         s_portlet_container = portal.unrestrictedTraverse(scont)
-        t_portlet_container = portal.unrestrictedTraverse(tcont)
+        try:
+            t_portlet_container = portal.unrestrictedTraverse(tcont)
+        except KeyError as error:
+            raise NoValidContainerException("%s is not a valid container!"%tcont)
         
         s_manager = getUtility(IPortletManager, name=sman, context = s_portlet_container)
         t_manager = getUtility(IPortletManager, name=tman, context = t_portlet_container)
@@ -63,13 +68,14 @@ class GetAvailablePOrtletManagers(BrowserView):
     def __call__(self):
         portal = api.portal.get()
         tcont = self.request['tcont']
-        print tcont
-        t_portlet_container = portal.unrestrictedTraverse(tcont)
-        out = ''
-        for manager_name, manager in getUtilitiesFor(IPortletManager, t_portlet_container):
-            if  'plone.dashboard' not in manager_name:
-        #import ipdb; ipdb.set_trace()
-                out += ' <option class="fgrconutils" value="{}">{}</option>'\
-                       .format(manager_name, manager_name)
-        return out
+        try:
+            t_portlet_container = portal.unrestrictedTraverse(tcont)
+            out = ''
+            for manager_name, manager in getUtilitiesFor(IPortletManager, t_portlet_container):
+                if  'plone.dashboard' not in manager_name:
+                    out += ' <option class="fgrconutils" value="{}">{}</option>'\
+                           .format(manager_name, manager_name)
+            return out
+        except KeyError as error:
+            raise NoValidContainerException("%s is not a valid container!" %tcont)
  
