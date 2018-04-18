@@ -5,8 +5,7 @@ collective.fgrcon.portletadmin
 ==============================
 
 collective.fgrcon.portletadmin allows to get an overwiew of all portlet assignments within a Plone site
- or subtree thereof.
-Furthermore it offers links for editing, moving or deleting any individual portlet.
+ or subtree thereof. Furthermore it offers links for editing, moving or deleting any individual portlet.
 
 Please use it at your own risk - backup before usage. It was developed for Plone 5.1.
 
@@ -14,13 +13,15 @@ Features
 --------
 
 The addon provides a view: *@@portlet-admin* which can be appended to site root or any subfolder of the site.
+
  - it lists all portlet assignments on all containers within the selected range recursively
  - for each listed container it provides a link to view the container/page
  - for each existing portlet manager in the container it lists all assigned portlets
  - for each portlet listed there is:
-   - a link to edit the portlet directly
-   - a link to remove (delete) the portlet
-   - an option to move the portlet assignment to a different portlet manager within the same or a different container.
+ 
+   * a link to edit the portlet directly
+   * a link to remove (delete) the portlet
+   * an option to move the portlet assignment to a different portlet manager within the same or a different container.
      (when selecting a different target container the available portlet managers will be fetched via an AJAX call.)
 
 Examples /Documentation
@@ -40,6 +41,10 @@ Examples /Documentation
    /Plone/folder1 (parent)
    
    .. image:: ./docs/screen-move_portlet.jpg
+
+ - *Virtual Hosting*
+    The addon can handle something like http://1.2.3.4:8080/Plone and mapped this (rewritten) as http:/example.org
+    
 
 Translations
 ------------

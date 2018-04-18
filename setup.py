@@ -14,7 +14,7 @@ long_description = '\n\n'.join([
 
 setup(
     name='collective.fgrcon.portletadmin',
-    version='1.1',
+    version='1.2',
     description="A Plone utility for inspecting and manipulating context  portlet assignments",
     long_description=long_description,
     # Get more from https://pypi.python.org/pypi?%3Aaction=list_classifiers
